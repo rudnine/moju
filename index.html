@@ -1,0 +1,487 @@
+<!doctype html>
+<html>
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+
+    <title>Hello, world!</title>
+
+</head>
+
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">증권사 수수료 비교</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample01" aria-controls="navbarsExample01" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+    </nav>
+      
+<!--<a href="#"  class="btn btn-primary">버튼</a>-->
+<div class='container'>
+    <p></p>
+
+    <!-- input box -->
+    <div class='card shadow-sm p-3 mb-5 bg-white rounded'>
+        <div class='card-body'>
+            <form>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">매수금액</span>
+                </div>
+                <input type="number" class="form-control" id="inputBuyAmt" oninput='handleOnInput(this, 14)'>
+                <div class="input-group-append">
+                    <span class="input-group-text">원</span>
+                </div>
+            </div>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">매도금액</span>
+                </div>
+                <input type="number" class="form-control" id="inputSellAmt" oninput='handleOnInput(this, 14)'>
+                <div class="input-group-append">
+                    <span class="input-group-text">원</span>
+                </div>
+            </div>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">증권사 수수료</span>
+                </div>
+                <input type="number" class="form-control" id="inputFee" oninput='handleOnInput(this, 10)'>
+                <div class="input-group-append">
+                    <span class="input-group-text">%</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <button type="button" class="btn btn-outline-primary" id="cancel">초기화</button>
+                <input class="btn btn-primary" type="button" id="execute" value="확인" >
+            </div>
+            <div id="inputComment">
+                <p class='card-text text-dark'>
+                    <br/>
+                    매수금액 <strong><span id="buyAmt"></span></strong>원과 매도금액 <strong><span id="sellAmt"></span></strong>원, 
+                    매매차익 <strong><span id="incomeBefore"></span></strong>원으로 계산된 금액입니다.                    
+                    <details class='text-info'>
+                        <summary>유의사항을 읽어주세요.~</summary>
+                        <ul>
+                            <li>기본 수수료율은 각 증권사 홈페이지에 게시된 모바일거래 기준, 금액 1천만원 매매시 수수료율로 계산되었습니다.</li>
+                            <li>유관기관제비용 : 0.005%, 증권거래세 : 0.23% 로 계산되었습니다.</li>
+                            <li>이벤트기간 가입 등을 통한 별도의 수수료율 적용시, 적용받은 수수료율을 직접 입력해서 계산해주세요. 원래 금액보다 얼마만큼 할인 받는지 확인해보세요.</li>
+                        </ul>
+                    </details>
+
+                </p>
+            </div>
+
+            </form>
+        </div>
+    </div>
+
+    <p></p>
+
+    <!-- 개별 수수료 조회 -->
+    <div id="pListCompany"></div>
+
+    <!-- 증권사별 수수료 목록 -->
+    <div id="listCompany"></div>
+
+</div>
+
+    <!-- Optional JavaScript; choose one of the two! -->
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>-->
+
+
+
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <!--<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF" crossorigin="anonymous"></script>
+    -->    
+</body>
+</html>
+
+<script>
+
+    $(document).ready(function(){
+        var buyAmt  = 10000000; //매수금액
+        var sellAmt = 20000000; //매도금액
+   
+        var buyFee = 0;
+        var sellFee1 = 0;
+        var sellFee2 = 0;
+        var sellFee3 = 0;
+        var sellFeeTotal = 0;
+        var feeTotal = 0;
+        var income = 0;
+        var incomeBefore = 0;
+    
+        //var feeStock1 = 0.147;
+        var feeMid2 = 0.005;    //유관기관제비용
+        var feeTax3 = 0.23;     //증권거래세
+    
+        //증권사별 거래수수료 
+        //삼성증권, 키움증권, 
+        //var feeStcName = ["삼성증권", "키움증권", "KB증권"];
+        //var feeStock1 = [0.147216, 0.015, 0.1973];
+        var feeStock2 = [
+            ["미래에셋증권", 0.014],
+            ["NH투자증권-나무", 0.01],
+            ["한국투자증권", 0.0140527],
+            ["삼성증권", 0.147216],
+            ["KB증권", 0.1973],
+            ["신한금융투자 S-Lite", 0.013],
+            ["메리츠증권", 0.138132],
+            ["키움증권", 0.015],
+            ["하나금융투자", 0.0141639],
+            ["대신증권", 0.1972959],
+            ["유안타증권", 0.1],
+            ["한화투자증권", 0.15],
+            ["교보증권", 0.1492],
+            ["하이투자증권", 0.0972],
+            ["현대차증권", 0.1981],
+            ["신영증권", 0.0991639],
+            ["유진투자증권", 0.015],
+            ["DB금융투자", 0.099164],
+            ["이베스트투자증권", 0.015],
+            ["SK증권-주파수", 0.01],
+            ["IBK투자증권", 0.1],
+            ["부국증권", 0.1],
+            ["케이티비투자증권", 0.015],
+            ["한양증권", 0.0873],
+            ["비엔케이투자증권-빅컷", 0.01],
+            ["케이프투자증권", 0.015],
+            ["상상인증권", 0.14],
+            ["토스증권", 0.015]
+            
+        ];            
+
+        //console.log("buyAmt1===" + buyAmt);            
+        //console.log("sellAmt1===" + sellAmt);            
+
+
+
+
+        var inputBuyAmt = "";   //입력한 매수금액
+        var inputSellAmt = "";  //입력한 매도금액
+        var inputFee = "";      //입력한 수수료율
+
+        //최초에 기본값으로 계산된 목록을 보여준다.
+        showListCompany();
+
+        //인풋박스 하단의 설명글 금액 세팅
+        //$("#buyAmt").text(withCommas(buyAmt));
+        //$("#sellAmt").text(withCommas(sellAmt));
+        //$("#incomeBefore").text(withCommas(incomeBefore));
+
+        console.log("sellFee1 ======> " + sellFee1);
+
+        //확인 버튼 클릭시
+        $('#execute').click(function(){
+            /*
+            $.ajax({
+                url:'./remake_210729.html',
+                type:'post',
+                data:$('form').serialize(),
+                success:function(data){
+                    $('#time').text(data);
+                }
+            })
+            */
+
+            //매수금액 입력값 세팅
+            inputBuyAmt = $('#inputBuyAmt').val();
+            if(inputBuyAmt != "") {
+                buyAmt = inputBuyAmt;
+            }
+            //매도금액 입력값 세팅
+            inputSellAmt = $('#inputSellAmt').val();
+            if(inputSellAmt != "") {
+                sellAmt = inputSellAmt;
+            }            
+
+            //인풋박스 설명글 보여주기
+            $('#inputComment').show();
+
+            //입력된 값으로 수수료 계산 다시함.
+            //showListCompany();            
+
+            inputFee = $('#inputFee').val();
+            if(inputFee != "") {
+                //수수료 입력하면(체크박스 Y), 입력한 수수료로 계산된 목록 1개만 보여준다.
+                //$("#listCompany").hide();       //목록 감추기
+                //$('#listCompany').empty();
+
+                pShowListCompany();             //개별조회 계산
+                $("#pListCompany").show();      //개별조회 출력
+
+                showListCompany();              //목록조회 계산
+                $("#listCompany").show();       //목록조회 출력
+            } else {
+                //수수료 입력없이 금액만 변경시, 기존 목록에 그대로 대입하여 보여준다.
+                $("#pListCompany").hide();      //개별조회 감추기
+
+                showListCompany();              //목록조회 계산
+                $("#listCompany").show();       //목록조회 출력
+            }
+
+        })
+
+        //초기화 버튼 클릭시
+        $('#cancel').click(function(){
+            //인풋박스 입력값 초기화
+            $('#inputBuyAmt').val("");
+            $('#inputSellAmt').val("");
+            $('#inputFee').val("");
+            //인풋박스 설명글 숨기기
+            $('#inputComment').hide();
+            //증권사목록 div 초기화
+            $('#listCompany').empty();
+            $('#pListCompany').empty();
+            //입력값 초기화
+            buyAmt  = 10000000; //매수금액
+            sellAmt = 20000000; //매도금액
+        })
+
+        // 증권사별 수수료 비교목록 함수
+        function showListCompany() {
+            $('#listCompany').empty();  //div 초기화
+
+            //인풋박스 설명글 금액표시
+            $("#buyAmt").text(withCommas(buyAmt));      //매수금액
+            $("#sellAmt").text(withCommas(sellAmt));    //매도금액
+            incomeBefore = parseInt (sellAmt - buyAmt);	        //매매차익
+            $("#incomeBefore").text(withCommas(incomeBefore));            
+
+            var i = 0;
+            while(i < 28) {
+
+                console.log("i% ===> " + i%8);
+                var adDiv = i%8;
+
+                // 계산
+                buyFee = parseInt (buyAmt * (feeStock2[i][1] / 100));	//매수 수수료
+                if(feeStock2[i][0] == "삼성증권") {
+                    buyFee += 1500;
+                    //console.log(i + "... 삼성");
+                    // 상세계산식은 따로 빼서 함수로 만들자.
+                } else if(feeStock2[i][0] == "한양증권") {
+                    buyFee += 500;
+                } else {
+                    //console.log(i + "... not 삼성");
+                }
+
+                sellFee1 = parseInt (sellAmt * (feeStock2[i][1] / 100));	//매도시 증권위탁수수료
+                if(feeStock2[i][0] == "삼성증권") {
+                    sellFee1 += 1500;
+                    //console.log(i + "... 삼성");
+                } else if(feeStock2[i][0] == "한양증권") {
+                    sellFee1 += 500;   
+                } else {
+                    //console.log(i + "... not 삼성");
+                }
+
+                sellFee2 = parseInt (sellAmt * (feeMid2 / 100));	//매도시 유관기관제비용
+                sellFee3 = parseInt (sellAmt * (feeTax3 / 100));	//매도시 증권거래세
+                sellFeeTotal = sellFee1 + sellFee2 + sellFee3;	//매도 수수료 (1 + 2 + 3)
+                feeTotal = buyFee + sellFeeTotal;				//총 수수료 (매수 + 매도)
+                income = parseInt( sellAmt - buyAmt - feeTotal );			//순수익금액
+        
+                var cHtml = "";
+                var cmpName = feeStock2[i][0];    //증권회사 이름
+                var comment = feeStock2[i][1];  //하단 수수료 설명글
+                if(cmpName == "삼성증권") {
+                    comment = comment + "% + 1,500원";
+                } else if(cmpName == "한양증권") {
+                    comment = comment + "% + 500원";
+                } else {
+                    comment = comment + "%";
+                }
+
+                console.log("매수 : " + buyAmt);
+                console.log("매도 : " + sellAmt);
+                console.log("매매차익 : " + incomeBefore);
+                console.log("매수 수수료 : " + buyFee);
+                console.log("매도 수수료1 : " + sellFee1);
+                console.log("매도 수수료2 : " + sellFee2);
+                console.log("매도 수수료3 : " + sellFee3);
+                console.log("매도 수수료 총합 : " + sellFeeTotal);
+                console.log("수수료 총합 : " + feeTotal);
+                console.log("순수익금액 : " + income);
+
+                //cHtml += "<div class='container'>";
+                cHtml += "<div class='card shadow-sm p-3 mb-5 bg-white rounded'>";
+                cHtml += "    <div class='card-body'>";
+                cHtml += "      <h4 class='card-title'><span id='cmpName_" + i + "'></span></h4>";
+                //cHtml += "      <p class='card-text text-info'>매수금액 " + withCommas(buyAmt) + "원과 매도금액 " + withCommas(sellAmt) + "원, 매매차익 <strong><span id='incomeBefore_" + i + "'></span></strong>원으로 계산한 금액입니다.</p>";
+                //cHtml += "      <h6 class='card-subtitle mb-2'><strong>매매차익</strong>&nbsp;&nbsp;&nbsp;&nbsp;<span id='incomeBefore_" + i + "'></span>&nbsp;원</h6>";
+
+                //cHtml += "      <p class='card-text'>It is the seventh most populous city in Italy</p>";
+                cHtml += "      <h6 class='card-subtitle mb-2'><strong>매수 수수료</strong></h6>";
+                cHtml += "      <ol>";
+                cHtml += "          <li><mark><b>증권사 수수료</b></mark> : <span id='buyFee_" + i + "'></span>&nbsp;원</li>";
+                cHtml += "      </ol>";                            
+                cHtml += "      <h6 class='card-subtitle mb-2'><strong>매도 수수료</strong></h6>";
+                cHtml += "      <ol>";
+                cHtml += "          <li><mark><b>증권사 수수료</b></mark> : <span id='sellFee1_" + i + "'></span>&nbsp;원</li>";
+                cHtml += "          <li>유관기관제비용 : <span id='sellFee2_" + i + "'></span>&nbsp;원</li>";
+                cHtml += "          <li>증권거래세 : <span id='sellFee3_" + i + "'></span>&nbsp;원</li>";                        
+                cHtml += "      </ol>";
+
+                cHtml += "      <h6 class='card-subtitle mb-2 text-primary'><strong>총수수료금액 : <span class='text-primary' id='feeTotal_" + i + "'></span>&nbsp;원</strong></h6>";
+
+                cHtml += "      <a href='#' class='btn btn-danger'>순수익금액</a>&nbsp;&nbsp;&nbsp;&nbsp;<strong><span id='income_" + i + "'></span></strong>&nbsp;원";
+
+                cHtml += "    </div>";
+                cHtml += "    <div class='card-footer text-danger'>";
+                cHtml += "      증권사 수수료 &nbsp;" + comment + " 로 계산되었습니다.";
+                cHtml += "    </div>";
+                cHtml += "</div>";
+                //cHtml += "</div>";
+                //cHtml += "<p></p>";
+
+                if(adDiv == "7"){
+                    cHtml += "<div>";
+                    //cHtml += "<p>--adDiv--</p>";
+                    cHtml += "</div>";
+                }
+
+                // 이 구문이 있어야, html이 생성된 것이다. 이후에 <span>에 값을 넣어야 한다.
+                $("#listCompany").append(cHtml);    
+        
+                //생성된 html 목록의 해당 row에 값을 추가한다.
+                $('#cmpName_' + i).text(cmpName);
+                $("#feeTotal_" + i).text(withCommas(feeTotal));
+                $("#buyFee_" + i).text(withCommas(buyFee));
+                //$("#sellFeeTotal_" + i).text(sellFeeTotal);
+                $("#sellFee1_" + i).text(withCommas(sellFee1));
+                $("#sellFee2_" + i).text(withCommas(sellFee2));
+                $("#sellFee3_" + i).text(withCommas(sellFee3));
+                $("#income_" + i).text(withCommas(income));
+
+                //console.log("incomeBefore : "+incomeBefore);
+                //console.log("feeTotal : "+feeTotal);
+                //console.log("buyFee : "+buyFee);
+                //console.log("sellFeeTotal : "+sellFeeTotal);
+                //console.log("sellFee1 : "+sellFee1);
+                //console.log("sellFee2 : "+sellFee2);
+                //console.log("sellFee3 : "+sellFee3);
+                //console.log("income : "+income);
+        
+                i ++;
+            } //while
+        }   //function showListCompany()
+    
+        // 금액에 콤마 표시
+        function withCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        function pShowListCompany(){
+            $('#pListCompany').empty();     //div 초기화
+            
+            //인풋박스 설명글 금액표시
+            $("#buyAmt").text(withCommas(buyAmt));      //매수금액
+            $("#sellAmt").text(withCommas(sellAmt));    //매도금액
+            incomeBefore = parseInt (sellAmt - buyAmt);	        //매매차익
+            $("#incomeBefore").text(withCommas(incomeBefore));            
+
+            var p_buyFee = 0;
+            var p_sellFee1 = 0;
+            var p_sellFee2 = 0;
+            var p_sellFee3 = 0;
+            var p_sellFeeTotal = 0;
+            var p_feeTotal = 0;
+            var p_income = 0;
+
+            // 계산
+            p_buyFee = parseInt (buyAmt * (inputFee / 100));	//매수 수수료
+            p_sellFee1 = parseInt (sellAmt * (inputFee / 100));	//매도시 증권위탁수수료
+            p_sellFee2 = parseInt (sellAmt * (feeMid2 / 100));	//매도시 유관기관제비용
+            p_sellFee3 = parseInt (sellAmt * (feeTax3 / 100));	//매도시 증권거래세
+            p_sellFeeTotal = p_sellFee1 + p_sellFee2 + p_sellFee3;	//매도 수수료 (1 + 2 + 3)
+            p_feeTotal = p_buyFee + p_sellFeeTotal;				//총 수수료 (매수 + 매도)
+            p_income = parseInt( sellAmt - buyAmt - p_feeTotal );			//순수익금액
+        
+
+            console.log("매수 : " + buyAmt);
+            console.log("매도 : " + sellAmt);
+            console.log("매매차익 : " + incomeBefore);
+            console.log("매수 수수료 : " + p_buyFee);
+            console.log("매도 수수료1 : " + p_sellFee1);
+            console.log("매도 수수료2 : " + p_sellFee2);
+            console.log("매도 수수료3 : " + p_sellFee3);
+            console.log("매도 수수료 총합 : " + p_sellFeeTotal);
+            console.log("수수료 총합 : " + p_feeTotal);
+            console.log("순수익금액 : " + p_income);
+
+            var cHtml = "";
+            var p_cmpName = "내 수수료율 조회";    //증권회사 이름
+            var p_comment = inputFee + "%";  //하단 수수료 설명글
+
+            var cHtml = "";
+            cHtml += "<div class='card shadow-sm p-3 mb-5 bg-white rounded'>";
+            cHtml += "    <div class='card-body'>";
+            cHtml += "      <h4 class='card-title'><span id='p_cmpName'></span></h4>";
+            cHtml += "      <h6 class='card-subtitle mb-2'><strong>매수 수수료</strong></h6>";
+            cHtml += "      <ol>";
+            cHtml += "          <li><mark><b>증권사 수수료</b></mark> : <span id='p_buyFee'></span>&nbsp;원</li>";
+            cHtml += "      </ol>";                            
+            cHtml += "      <h6 class='card-subtitle mb-2'><strong>매도 수수료</strong></h6>";
+            cHtml += "      <ol>";
+            cHtml += "          <li><mark><b>증권사 수수료</b></mark> : <span id='p_sellFee1'></span>&nbsp;원</li>";
+            cHtml += "          <li>유관기관제비용 : <span id='p_sellFee2'></span>&nbsp;원</li>";
+            cHtml += "          <li>증권거래세 : <span id='p_sellFee3'></span>&nbsp;원</li>";                        
+            cHtml += "      </ol>";
+
+            cHtml += "      <h6 class='card-subtitle mb-2 text-primary'><strong>총수수료금액 : <span class='text-primary' id='p_feeTotal'></span>&nbsp;원</strong></h6>";
+
+            cHtml += "      <a href='#' class='btn btn-danger'>순수익금액</a>&nbsp;&nbsp;&nbsp;&nbsp;<strong><span id='p_income'></span></strong>&nbsp;원";
+            cHtml += "    </div>";
+            cHtml += "    <div class='card-footer text-danger'>";
+            cHtml += "      증권사 수수료 <span id='p_comment'></span> 로 계산되었습니다.";
+            cHtml += "    </div>";
+            cHtml += "</div>";
+            //cHtml += "<p></p>";
+
+            cHtml += "<div>";
+            //cHtml += "<p>--adDiv2--</p>";
+            cHtml += "</div>";            
+
+            $("#pListCompany").append(cHtml);
+
+            //생성된 html 목록의 해당 row에 값을 추가한다.
+            $('#p_cmpName').text(p_cmpName);
+            $("#p_feeTotal").text(withCommas(p_feeTotal));
+            $("#p_buyFee").text(withCommas(p_buyFee));
+            //$("#sellFeeTotal_" + i).text(sellFeeTotal);
+            $("#p_sellFee1").text(withCommas(p_sellFee1));
+            $("#p_sellFee2").text(withCommas(p_sellFee2));
+            $("#p_sellFee3").text(withCommas(p_sellFee3));
+            $("#p_income").text(withCommas(p_income));
+            $("#p_comment").text(p_comment);
+
+
+        }
+
+
+    }); //jquery
+
+    function handleOnInput(el, maxlength) {
+        if(el.value.length > maxlength)  {
+          el.value 
+            = el.value.substr(0, maxlength);
+        }
+    }  
+
+</script>
