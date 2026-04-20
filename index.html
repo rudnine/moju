@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="description" content="국내 증권사 수수료를 한눈에 비교하고 가장 저렴한 증권사를 찾아보세요. 토스, 키움, 한국투자, NH, 미래에셋, 삼성, 신한, KB 수수료 비교.">
+<meta name="keywords" content="증권사 수수료, 주식 수수료, 수수료 비교, 토스증권, 키움증권, 계좌개설">
+<meta property="og:title" content="국내 증권사 수수료 비교 계산기">
+<meta property="og:description" content="매수/매도 금액만 입력하면 8개 증권사 수수료를 한 번에 비교">
+<meta property="og:type" content="website">
+<title>증권사 수수료 비교 | 모주</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #F4F1EC;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    color: #1A1A1A;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+  input, button { font-family: inherit; }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] { -moz-appearance: textfield; }
+
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+    min-height: 100vh;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 24px;
+    padding-top: 12px;
+  }
+  .header .label {
+    font-size: 13px;
+    color: #8B8B8B;
+    margin: 0 0 6px;
+    font-weight: 500;
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+
+  .card {
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 12px;
+  }
+
+  .card label {
+    display: block;
+    font-size: 13px;
+    color: #6B6B6B;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .amount-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .amount-input {
+    flex: 1;
+    font-size: 26px;
+    font-weight: 700;
+    border: none;
+    background: transparent;
+    padding: 0;
+    outline: none;
+    min-width: 0;
+    color: #1A1A1A;
+    letter-spacing: -0.5px;
+  }
+  .amount-input::placeholder { color: #C8C8C8; }
+  .amount-unit {
+    font-size: 16px;
+    color: #6B6B6B;
+    font-weight: 500;
+  }
+  .amount-kr {
+    font-size: 13px;
+    color: #A0A0A0;
+    margin: 4px 0 14px;
+  }
+
+  .preset-row {
+    display: flex;
+    gap: 6px;
+  }
+  .preset-btn {
+    flex: 1;
+    padding: 9px 0;
+    font-size: 13px;
+    font-weight: 500;
+    background: #F4F1EC;
+    border: none;
+    border-radius: 10px;
+    color: #5B5B5B;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .preset-btn:active { transform: scale(0.96); background: #EAE6DD; }
+
+  .return-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .return-row .label-text { font-size: 13px; color: #6B6B6B; font-weight: 500; }
+  .return-row .value {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1A1A1A;
+    letter-spacing: -0.3px;
+  }
+  .return-row .value.positive { color: #E8493B; }
+  .return-row .value.negative { color: #1F7CE3; }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: #EFEAE0;
+    border-radius: 3px;
+    outline: none;
+    margin: 6px 0 0;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    background: #1A1A1A;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid #FFFFFF;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    background: #1A1A1A;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid #FFFFFF;
+  }
+  .range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #B0B0B0;
+    margin-top: 6px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin: 24px 4px 12px;
+  }
+  .section-header h2 {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.3px;
+  }
+  .section-header .hint {
+    font-size: 11px;
+    color: #A0A0A0;
+  }
+
+  .broker-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .broker-more-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #6B6B6B;
+    background: #FFFFFF;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.15s;
+  }
+  .broker-more-btn:active { transform: scale(0.98); background: #F9F7F3; }
+  .broker-more-btn .chevron-sm {
+    width: 14px;
+    height: 14px;
+    color: #A0A0A0;
+    transition: transform 0.2s;
+  }
+  .broker-more-btn.open .chevron-sm { transform: rotate(180deg); }
+
+  .broker-hidden { display: none; }
+  .broker-hidden.show { display: block; }
+
+  .broker-card {
+    background: #FFFFFF;
+    border-radius: 14px;
+    padding: 16px 18px;
+    transition: all 0.2s;
+  }
+  .broker-card.best {
+    border: 2px solid #1A1A1A;
+    padding: 15px 17px;
+  }
+
+  .broker-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .broker-info { flex: 1; min-width: 0; }
+  .broker-name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  .broker-name {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+  .badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+    line-height: 1.4;
+  }
+  .badge-best {
+    background: #1A1A1A;
+    color: #FFFFFF;
+  }
+  .badge-event {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-block;
+  }
+
+  .fee-display { text-align: right; flex-shrink: 0; }
+  .fee-original {
+    font-size: 11px;
+    color: #B0B0B0;
+    margin: 0;
+    text-decoration: line-through;
+  }
+  .fee-final {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 2px 0 0;
+    letter-spacing: -0.3px;
+  }
+  .fee-final.discount { color: #E8493B; }
+  .fee-rate {
+    font-size: 11px;
+    color: #A0A0A0;
+    margin: 2px 0 0;
+  }
+
+  .cta-btn {
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: -0.2px;
+  }
+  .cta-btn:active { transform: scale(0.98); }
+
+  .summary-card {
+    background: #1A1A1A;
+    color: #FFFFFF;
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .summary-card .label-small {
+    font-size: 12px;
+    color: #A0A0A0;
+    margin: 0 0 4px;
+    font-weight: 500;
+  }
+  .summary-card .value-big {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+  .summary-card .right { text-align: right; }
+  .summary-card .label-tiny {
+    font-size: 11px;
+    color: #6B6B6B;
+    margin: 0;
+  }
+  .summary-card .detail {
+    font-size: 12px;
+    color: #C8C8C8;
+    margin: 3px 0 0;
+    font-weight: 500;
+  }
+
+  .fee-detail {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease, margin 0.25s ease, padding 0.25s ease;
+    margin-top: 0;
+  }
+  .fee-detail.open {
+    max-height: 400px;
+    margin-top: 12px;
+  }
+  .fee-detail-inner {
+    background: #F9F7F3;
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .fee-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1A1A1A;
+    margin: 0 0 8px;
+  }
+  .fee-section-title:not(:first-child) {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 0.5px solid #E8E4DC;
+  }
+  .fee-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 0;
+  }
+  .fee-line-label {
+    font-size: 12px;
+    color: #6B6B6B;
+  }
+  .fee-line-value {
+    font-size: 12px;
+    font-weight: 500;
+    color: #1A1A1A;
+  }
+  .fee-line.subtotal {
+    margin-top: 4px;
+    padding-top: 6px;
+    border-top: 0.5px dashed #D5D0C6;
+  }
+  .fee-line.subtotal .fee-line-label {
+    font-weight: 700;
+    color: #1A1A1A;
+  }
+  .fee-line.subtotal .fee-line-value {
+    font-weight: 700;
+  }
+  .broker-card { cursor: pointer; }
+  .chevron-icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    color: #A0A0A0;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .broker-card .chevron-icon.open { transform: rotate(180deg); }
+
+  .market-toggle {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .market-btn {
+    flex: 1;
+    padding: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    background: #FFFFFF;
+    border: 0.5px solid #E0DCD3;
+    border-radius: 10px;
+    color: #8B8B8B;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .market-btn.active {
+    background: #1A1A1A;
+    color: #FFFFFF;
+    border-color: #1A1A1A;
+    font-weight: 700;
+  }
+  .market-btn:active { transform: scale(0.96); }
+
+  .disclosure {
+    background: #FFFFFF;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #8B8B8B;
+    line-height: 1.6;
+  }
+  .disclosure strong { color: #5B5B5B; font-weight: 700; }
+
+  .footer {
+    text-align: center;
+    margin-top: 24px;
+    padding: 16px 0;
+    font-size: 11px;
+    color: #B0B0B0;
+  }
+
+  .main-tab-row {
+    display: flex;
+    background: #1A1A1A;
+    border-radius: 12px;
+    padding: 3px;
+    margin-bottom: 20px;
+  }
+  .main-tab-btn {
+    flex: 1;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    color: #6B6B6B;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .main-tab-btn.active {
+    background: #FFFFFF;
+    color: #1A1A1A;
+    font-weight: 700;
+  }
+  .main-tab-btn:active { transform: scale(0.97); }
+
+  .toggle-row {
+    display: flex;
+    background: #F4F1EC;
+    border-radius: 10px;
+    padding: 3px;
+    margin-bottom: 12px;
+  }
+  .toggle-btn {
+    flex: 1;
+    padding: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #8B8B8B;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .toggle-btn.active {
+    background: #FFFFFF;
+    color: #1A1A1A;
+    font-weight: 700;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  @media (max-width: 360px) {
+    .amount-input { font-size: 22px; }
+    .header h1 { font-size: 20px; }
+  }
+
+  .my-fee-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0 0;
+    margin-top: 12px;
+    border-top: 0.5px solid #EFEAE0;
+    cursor: pointer;
+  }
+  .my-fee-toggle span {
+    font-size: 13px;
+    font-weight: 500;
+    color: #6B6B6B;
+  }
+  .my-fee-toggle .chevron-sm {
+    width: 14px;
+    height: 14px;
+    color: #A0A0A0;
+    transition: transform 0.2s;
+  }
+  .my-fee-toggle.open .chevron-sm { transform: rotate(180deg); }
+
+  .my-fee-panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  .my-fee-panel.open {
+    max-height: 300px;
+  }
+  .my-fee-fields {
+    padding-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .my-fee-field label {
+    display: block;
+    font-size: 12px;
+    color: #8B8B8B;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .my-fee-input-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .my-fee-input {
+    flex: 1;
+    font-size: 18px;
+    font-weight: 700;
+    border: none;
+    border-bottom: 1.5px solid #E0DCD3;
+    background: transparent;
+    padding: 4px 0;
+    outline: none;
+    min-width: 0;
+    color: #1A1A1A;
+    letter-spacing: -0.3px;
+    transition: border-color 0.15s;
+  }
+  .my-fee-input:focus { border-bottom-color: #1A1A1A; }
+  .my-fee-summary {
+    margin-top: 14px;
+    padding: 10px 14px;
+    background: #1A1A1A;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .my-fee-summary .label {
+    font-size: 13px;
+    color: #A0A0A0;
+    font-weight: 500;
+    margin: 0;
+  }
+  .my-fee-summary .value {
+    font-size: 17px;
+    font-weight: 700;
+    color: #FFFFFF;
+    letter-spacing: -0.3px;
+  }
+  .my-fee-unit {
+    font-size: 13px;
+    color: #6B6B6B;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .broker-card.my-card {
+    background: #1A1A1A;
+    color: #FFFFFF;
+  }
+  .broker-card.my-card .broker-name { color: #FFFFFF; }
+  .broker-card.my-card .fee-final { color: #FFFFFF; }
+  .broker-card.my-card .fee-rate { color: #A0A0A0; }
+  .broker-card.my-card .badge-my {
+    background: #FFFFFF;
+    color: #1A1A1A;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .broker-card.my-card .chevron-icon { color: #6B6B6B; }
+  .broker-card.my-card .fee-detail-inner {
+    background: #2A2A2A;
+  }
+  .broker-card.my-card .fee-section-title { color: #FFFFFF; }
+  .broker-card.my-card .fee-line-label { color: #A0A0A0; }
+  .broker-card.my-card .fee-line-value { color: #FFFFFF; }
+  .broker-card.my-card .fee-line.subtotal .fee-line-label { color: #FFFFFF; }
+  .broker-card.my-card .fee-line.subtotal { border-top-color: #444; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="header">
+    <h1>수수료, 얼마나 아낄 수 있을까?</h1>
+  </div>
+
+  <div class="main-tab-row">
+    <button class="main-tab-btn active" id="tabDomestic" onclick="setMainTab('domestic')">국내주식</button>
+    <button class="main-tab-btn" id="tabOverseas" onclick="setMainTab('overseas')">해외주식</button>
+  </div>
+
+  <div id="domesticContent">
+  <div class="card">
+    <label>매수금액</label>
+    <div class="amount-row">
+      <input type="text" id="buyAmount" class="amount-input" value="10,000,000" inputmode="numeric" />
+      <span class="amount-unit">원</span>
+    </div>
+    <p id="buyAmountKr" class="amount-kr">일천만원</p>
+
+    <div class="preset-row">
+      <button class="preset-btn" onclick="addAmount(1000000)">+100만</button>
+      <button class="preset-btn" onclick="addAmount(5000000)">+500만</button>
+      <button class="preset-btn" onclick="addAmount(10000000)">+1천만</button>
+      <button class="preset-btn" onclick="addAmount(50000000)">+5천만</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="sliderSection">
+      <div class="return-row">
+        <span class="label-text">예상 수익률</span>
+        <span class="value positive" id="returnOut">+10%</span>
+      </div>
+      <input type="range" id="returnRate" min="-50" max="100" value="10" step="1" />
+      <div class="range-labels" style="justify-content: flex-start; position: relative;">
+        <span style="position: absolute; left: 0;">-50%</span><span style="position: absolute; left: 33.3%; transform: translateX(-50%);">0%</span><span style="position: absolute; right: 0;">+100%</span>
+      </div>
+    </div>
+
+    <div id="myFeeSection" style="display: none;">
+      <div class="my-fee-fields">
+        <div class="my-fee-field">
+          <label>매도금액</label>
+          <div class="my-fee-input-row">
+            <input type="text" id="sellAmountInput" class="my-fee-input" value="11,000,000" inputmode="numeric" />
+            <span class="my-fee-unit">원</span>
+          </div>
+        </div>
+        <div class="my-fee-field">
+          <label>내 수수료율</label>
+          <div class="my-fee-input-row">
+            <input type="text" id="myFeeRate" class="my-fee-input" value="0.015" inputmode="decimal" style="max-width: 120px;" />
+            <span class="my-fee-unit">%</span>
+          </div>
+        </div>
+        <div class="my-fee-summary" id="myFeeSummary">
+          <span class="label">예상 총 비용</span>
+          <span class="value" id="myFeeSummaryValue">— 원</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="my-fee-toggle" id="myFeeToggle" onclick="toggleMyFee()">
+      <span id="myFeeToggleText">내 수수료율로 직접 계산해보기</span>
+      <svg class="chevron-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <h2>증권사별 비교</h2>
+  </div>
+
+  <div class="toggle-row">
+    <button class="toggle-btn active" id="modeAll" onclick="setMode('all')">총 비용</button>
+    <button class="toggle-btn" id="modeBroker" onclick="setMode('broker')">증권사 수수료만</button>
+  </div>
+
+  <div id="brokerList" class="broker-list"></div>
+
+  <div class="summary-card">
+    <div>
+      <p class="label-small">1년 12회 거래 시 절약</p>
+      <p class="value-big" id="savingsAmount">— 원</p>
+    </div>
+    <div class="right">
+      <p class="label-tiny">최저 vs 최고</p>
+      <p class="detail" id="savingsDetail">차이</p>
+    </div>
+  </div>
+
+  <div class="disclosure">
+    <strong>안내사항</strong><br>
+    · 모바일 일반 수수료율 기준이며 이벤트 가입 시 다를 수 있습니다<br>
+    · 유관기관제비용 0.0036396% (매수·매도 양쪽 부과)<br>
+    · 증권거래세 (매도 시에만): 코스피·코스닥 모두 0.20% (코스피는 거래세 0.05% + 농어촌특별세 0.15%)<br>
+    · 2026년 1월 1일부터 적용된 세율 기준<br>
+    · 본 페이지는 제휴 마케팅을 통해 소정의 수수료를 받을 수 있습니다
+  </div>
+
+  </div><!-- end domesticContent -->
+
+  <div id="overseasContent" style="display: none;">
+    <div class="card">
+      <label>매수금액</label>
+      <div class="amount-row">
+        <input type="text" id="osBuyAmount" class="amount-input" value="10,000,000" inputmode="numeric" />
+        <span class="amount-unit" id="osCurrUnit">원</span>
+      </div>
+      <p id="osBuyAmountKr" class="amount-kr">일천만원</p>
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px;">
+        <button class="preset-btn" id="osCurrToggle" onclick="toggleOsCurrency()" style="flex: none; padding: 7px 14px; font-size: 12px;">원 ↔ USD</button>
+        <span style="font-size: 11px; color: #A0A0A0;" id="osExRateDisplay">1 USD = 1,380원</span>
+      </div>
+      <div class="preset-row">
+        <button class="preset-btn" onclick="addOsAmount(1000000)">+100만</button>
+        <button class="preset-btn" onclick="addOsAmount(5000000)">+500만</button>
+        <button class="preset-btn" onclick="addOsAmount(10000000)">+1천만</button>
+        <button class="preset-btn" onclick="addOsAmount(50000000)">+5천만</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="osSliderSection">
+        <div class="return-row">
+          <span class="label-text">예상 수익률</span>
+          <span class="value positive" id="osReturnOut">+10%</span>
+        </div>
+        <input type="range" id="osReturnRate" min="-50" max="100" value="10" step="1" />
+        <div class="range-labels" style="justify-content: flex-start; position: relative;">
+          <span style="position: absolute; left: 0;">-50%</span><span style="position: absolute; left: 33.3%; transform: translateX(-50%);">0%</span><span style="position: absolute; right: 0;">+100%</span>
+        </div>
+      </div>
+
+      <div id="osMyFeeSection" style="display: none;">
+        <div class="my-fee-fields">
+          <div class="my-fee-field">
+            <label>매도금액</label>
+            <div class="my-fee-input-row">
+              <input type="text" id="osSellAmountInput" class="my-fee-input" value="11,000,000" inputmode="numeric" />
+              <span class="my-fee-unit">원</span>
+            </div>
+          </div>
+          <div class="my-fee-field">
+            <label>내 수수료율</label>
+            <div class="my-fee-input-row">
+              <input type="text" id="osMyFeeRate" class="my-fee-input" value="0.25" inputmode="decimal" style="max-width: 120px;" />
+              <span class="my-fee-unit">%</span>
+            </div>
+          </div>
+          <div class="my-fee-summary" id="osMyFeeSummary">
+            <span class="label">예상 총 비용</span>
+            <span class="value" id="osMyFeeSummaryValue">— 원</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="my-fee-toggle" id="osMyFeeToggle" onclick="toggleOsMyFee()">
+        <span id="osMyFeeToggleText">내 수수료율로 직접 계산해보기</span>
+        <svg class="chevron-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h2>증권사별 비교</h2>
+    </div>
+
+    <div class="toggle-row">
+      <button class="toggle-btn active" id="osModeAll" onclick="setOsMode('all')">총 비용</button>
+      <button class="toggle-btn" id="osModeBroker" onclick="setOsMode('broker')">증권사 수수료만</button>
+    </div>
+
+    <div id="osBrokerList" class="broker-list"></div>
+
+    <div class="summary-card">
+      <div>
+        <p class="label-small">1년 12회 거래 시 절약</p>
+        <p class="value-big" id="osSavingsAmount">— 원</p>
+      </div>
+      <div class="right">
+        <p class="label-tiny">최저 vs 최고</p>
+        <p class="detail" id="osSavingsDetail">차이</p>
+      </div>
+    </div>
+
+    <div class="disclosure">
+      <strong>안내사항 (해외주식)</strong><br>
+      · 미국주식 MTS 기본 수수료율 기준이며 이벤트 가입 시 다를 수 있습니다<br>
+      · SEC Fee 0.00206% (매도 시에만, 2026.4.2~ 적용)<br>
+      · 양도소득세 22% (연간 250만원 공제 후 초과분, 자진신고)<br>
+      · 환전 수수료는 매매기준율 기준으로 계산 (증권사별 우대율 상이)<br>
+      · 본 페이지는 제휴 마케팅을 통해 소정의 수수료를 받을 수 있습니다
+    </div>
+  </div>
+
+  <div class="footer">
+    © 2026 모주 · 수수료 비교 계산기
+  </div>
+
+</div>
+
+<script>
+let brokers = [];
+const VISIBLE_COUNT = 10;
+let showAllBrokers = false;
+
+function setMainTab(tab) {
+  document.getElementById("tabDomestic").classList.toggle("active", tab === "domestic");
+  document.getElementById("tabOverseas").classList.toggle("active", tab === "overseas");
+  document.getElementById("domesticContent").style.display = tab === "domestic" ? "block" : "none";
+  document.getElementById("overseasContent").style.display = tab === "overseas" ? "block" : "none";
+}
+
+const colorMap = {
+  blue:  { bg: "#E6F0FF", text: "#1F5FCC" },
+  amber: { bg: "#FFF1D6", text: "#A56C0A" },
+  teal:  { bg: "#DFF4EC", text: "#0B6D54" },
+  gray:  { bg: "#F0EDE5", text: "#5B5B5B" }
+};
+
+fetch('brokers.json')
+  .then(r => r.json())
+  .then(data => { brokers = data; render(); })
+  .catch(() => {
+    brokers = [
+      { name: "토스증권", rate: 0.015, event: "평생 무료", eventRate: 0.0, eventOn: false, color: "blue", url: "https://tossinvest.com" },
+      { name: "키움증권", rate: 0.015, event: "신규/휴면 무료", eventRate: 0.0, eventOn: false, color: "amber", url: "https://www.kiwoom.com" },
+      { name: "카카오페이증권", rate: 0.015, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.kakaopaysec.com" },
+      { name: "한국투자증권", rate: 0.014, event: "신규 1개월 무료", eventRate: 0.0, eventOn: false, color: "teal", url: "https://securities.koreainvestment.com" },
+      { name: "미래에셋증권", rate: 0.014, event: "신규 90일 무료", eventRate: 0.0, eventOn: false, color: "gray", url: "https://securities.miraeasset.com" },
+      { name: "NH투자증권", rate: 0.014, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.nhqv.com" },
+      { name: "삼성증권", rate: 0.014, event: "ISA 평생 0.0036%", eventRate: 0.0036, eventOn: false, color: "gray", url: "https://www.samsungpop.com" },
+      { name: "하나증권", rate: 0.014, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.hanaw.com" },
+      { name: "대신증권", rate: 0.014, event: "평생 0.0036%", eventRate: 0.0036, eventOn: false, color: "gray", url: "https://www.daishin.com" },
+      { name: "메리츠증권", rate: 0.014, event: "2026.12까지 무료", eventRate: 0.0, eventOn: false, color: "gray", url: "https://home.imeritz.com" },
+      { name: "교보증권", rate: 0.014, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.iprovest.com" },
+      { name: "신한투자증권", rate: 0.1982, event: "신규/휴면 제로", eventRate: 0.0, eventOn: false, color: "gray", url: "https://www.shinhansec.com" },
+      { name: "KB증권", rate: 0.1968, event: "신규 평생 0.0044%", eventRate: 0.0044, eventOn: false, color: "gray", url: "https://www.kbsec.com" },
+      { name: "한화투자증권", rate: 0.15, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.hanwhawm.com" },
+      { name: "유안타증권", rate: 0.1, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.myasset.com" },
+      { name: "유진투자증권", rate: 0.14, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.eugenefn.com" },
+      { name: "DB금융투자", rate: 0.14, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.db-fi.com" },
+      { name: "LS증권", rate: 0.14, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.ls-sec.co.kr" },
+      { name: "BNK투자증권", rate: 0.14, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.bnkfn.co.kr" },
+      { name: "현대차증권", rate: 0.14, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.hmsec.com" },
+      { name: "SK증권", rate: 0.14, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.sks.co.kr" },
+      { name: "IBK투자증권", rate: 0.14, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.ibks.com" },
+      { name: "iM증권", rate: 0.14, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.imsec.co.kr" },
+      { name: "부국증권", rate: 0.14, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.bookook.co.kr" },
+      { name: "다올투자증권", rate: 0.14, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.daolsec.co.kr" }
+    ];
+    render();
+  });
+
+const KOSPI_TAX_RATE = 0.0005;
+const KOSPI_RURAL_TAX_RATE = 0.0015;
+const KOSDAQ_TAX_RATE = 0.0020;
+const MISC_RATE = 0.000036396;
+let currentMode = 'all';
+let currentMarket = 'kospi';
+let myFeeMode = false;
+
+function calcFeeDetail(buyAmount, sellAmount, brokerRate) {
+  const buyBroker = Math.round(buyAmount * (brokerRate / 100));
+  const sellBroker = Math.round(sellAmount * (brokerRate / 100));
+  const buyMisc = Math.round(buyAmount * MISC_RATE);
+  const sellMisc = Math.round(sellAmount * MISC_RATE);
+  let sellTax, sellRural;
+  if (currentMarket === 'kospi') {
+    sellTax = Math.round(sellAmount * KOSPI_TAX_RATE);
+    sellRural = Math.round(sellAmount * KOSPI_RURAL_TAX_RATE);
+  } else {
+    sellTax = Math.round(sellAmount * KOSDAQ_TAX_RATE);
+    sellRural = 0;
+  }
+  const buyTotal = buyBroker + buyMisc;
+  const sellTotal = sellBroker + sellMisc + sellTax + sellRural;
+  const brokerOnly = buyBroker + sellBroker;
+  const allTotal = buyTotal + sellTotal;
+  return { buyBroker, sellBroker, buyMisc, sellMisc, sellTax, sellRural, buyTotal, sellTotal, brokerOnly, allTotal };
+}
+
+function getEffectiveFee(detail, mode) {
+  return mode === 'broker' ? detail.brokerOnly : detail.allTotal;
+}
+
+function numToKorean(num) {
+  if (!num || num === 0) return "영원";
+  const units = ["", "만", "억", "조"];
+  const koreanNums = ["", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구"];
+  let result = "";
+  let unitIdx = 0;
+  let n = Math.abs(Math.floor(num));
+  while (n > 0) {
+    const part = n % 10000;
+    if (part > 0) {
+      let partStr = "";
+      const thousand = Math.floor(part / 1000);
+      const hundred = Math.floor((part % 1000) / 100);
+      const ten = Math.floor((part % 100) / 10);
+      const one = part % 10;
+      if (thousand > 0) partStr += koreanNums[thousand] + "천";
+      if (hundred > 0) partStr += koreanNums[hundred] + "백";
+      if (ten > 0) partStr += koreanNums[ten] + "십";
+      if (one > 0) partStr += koreanNums[one];
+      result = partStr + units[unitIdx] + " " + result;
+    }
+    n = Math.floor(n / 10000);
+    unitIdx++;
+  }
+  return result.trim() + "원";
+}
+
+function toggleMyFee() {
+  myFeeMode = !myFeeMode;
+  const toggle = document.getElementById("myFeeToggle");
+  const slider = document.getElementById("sliderSection");
+  const myFee = document.getElementById("myFeeSection");
+  const toggleText = document.getElementById("myFeeToggleText");
+  toggle.classList.toggle("open", myFeeMode);
+  if (myFeeMode) {
+    slider.style.display = "none";
+    myFee.style.display = "block";
+    toggleText.textContent = "증권사 비교 모드로 돌아가기";
+  } else {
+    slider.style.display = "block";
+    myFee.style.display = "none";
+    toggleText.textContent = "내 수수료율로 직접 계산해보기";
+  }
+  render();
+}
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById("modeAll").classList.toggle("active", mode === "all");
+  document.getElementById("modeBroker").classList.toggle("active", mode === "broker");
+  render();
+}
+
+function render() {
+  const buyAmount = parseFloat(document.getElementById("buyAmount").value.replace(/,/g, '')) || 0;
+  const returnRate = parseFloat(document.getElementById("returnRate").value) || 0;
+
+  let sellAmount;
+  if (myFeeMode) {
+    sellAmount = parseFloat((document.getElementById("sellAmountInput").value || '0').replace(/,/g, '')) || 0;
+  } else {
+    sellAmount = Math.round(buyAmount * (1 + returnRate / 100));
+  }
+
+  document.getElementById("buyAmountKr").textContent = numToKorean(buyAmount);
+  const returnOut = document.getElementById("returnOut");
+  returnOut.textContent = (returnRate >= 0 ? "+" : "") + returnRate + "%";
+  returnOut.className = "value " + (returnRate > 0 ? "positive" : returnRate < 0 ? "negative" : "");
+
+  const results = brokers.map(b => {
+    const baseDetail = calcFeeDetail(buyAmount, sellAmount, b.rate);
+    const useEvent = b.eventOn && b.eventRate !== null;
+    const eventDetail = useEvent ? calcFeeDetail(buyAmount, sellAmount, b.eventRate) : null;
+    const effectiveDetail = eventDetail || baseDetail;
+    const baseFee = getEffectiveFee(baseDetail, currentMode);
+    const eventFee = eventDetail ? getEffectiveFee(eventDetail, currentMode) : null;
+    const effectiveFee = eventFee !== null ? eventFee : baseFee;
+    return { ...b, baseDetail, eventDetail, effectiveDetail, baseFee, eventFee, effectiveFee, useEvent };
+  }).sort((a, b) => a.effectiveFee - b.effectiveFee);
+
+  const minFee = results[0].effectiveFee;
+  const maxFee = results[results.length - 1].effectiveFee;
+  const savings = (maxFee - minFee) * 12;
+  document.getElementById("savingsAmount").textContent = savings.toLocaleString() + "원";
+  document.getElementById("savingsDetail").textContent = "회당 " + (maxFee - minFee).toLocaleString() + "원";
+
+  const list = document.getElementById("brokerList");
+  const openStates = {};
+  list.querySelectorAll('.broker-card').forEach(el => {
+    const name = el.getAttribute('data-broker');
+    const detail = el.querySelector('.fee-detail');
+    if (name && detail && detail.classList.contains('open')) openStates[name] = true;
+  });
+
+  list.innerHTML = "";
+  const marketLabel = currentMarket === 'kospi' ? '코스피' : '코스닥';
+
+  if (myFeeMode) {
+    const myRate = parseFloat(document.getElementById("myFeeRate").value) || 0;
+    const myDetail = calcFeeDetail(buyAmount, sellAmount, myRate);
+    const myFee = getEffectiveFee(myDetail, currentMode);
+    const isMyOpen = openStates['__my__'] || false;
+    const dm = myDetail;
+    const combinedTaxM = dm.sellTax + dm.sellRural;
+    const combinedTaxRateM = currentMarket === 'kospi' ? '0.20%' : '0.20%';
+    const chevronM = `<svg class="chevron-icon${isMyOpen ? ' open' : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>`;
+    const myDetailHTML = `
+      <div class="fee-detail${isMyOpen ? ' open' : ''}">
+        <div class="fee-detail-inner">
+          <p class="fee-section-title">매수 비용</p>
+          <div class="fee-line"><span class="fee-line-label">증권사 수수료 (${myRate}%)</span><span class="fee-line-value">${dm.buyBroker.toLocaleString()}원</span></div>
+          <div class="fee-line"><span class="fee-line-label">유관기관제비용 (0.0036396%)</span><span class="fee-line-value">${dm.buyMisc.toLocaleString()}원</span></div>
+          <div class="fee-line subtotal"><span class="fee-line-label">매수 소계</span><span class="fee-line-value">${dm.buyTotal.toLocaleString()}원</span></div>
+          <p class="fee-section-title">매도 비용</p>
+          <div class="fee-line"><span class="fee-line-label">증권사 수수료 (${myRate}%)</span><span class="fee-line-value">${dm.sellBroker.toLocaleString()}원</span></div>
+          <div class="fee-line"><span class="fee-line-label">유관기관제비용 (0.0036396%)</span><span class="fee-line-value">${dm.sellMisc.toLocaleString()}원</span></div>
+          <div class="fee-line"><span class="fee-line-label">증권거래세 (${combinedTaxRateM})</span><span class="fee-line-value">${combinedTaxM.toLocaleString()}원</span></div>
+          <div class="fee-line subtotal"><span class="fee-line-label">매도 소계</span><span class="fee-line-value">${dm.sellTotal.toLocaleString()}원</span></div>
+        </div>
+      </div>
+    `;
+    const myCard = document.createElement("div");
+    myCard.className = "broker-card my-card";
+    myCard.setAttribute("data-broker", "__my__");
+    myCard.innerHTML = `
+      <div class="broker-row">
+        <div class="broker-info">
+          <div class="broker-name-row">
+            <span class="badge badge-my">내 수수료</span><span class="broker-name">직접 계산</span>${chevronM}
+          </div>
+        </div>
+        <div class="fee-display">
+          <p class="fee-final">${myFee.toLocaleString()}원</p>
+          <p class="fee-rate">수수료율 ${myRate}%</p>
+        </div>
+      </div>
+      ${myDetailHTML}
+    `;
+    myCard.addEventListener('click', function() {
+      const det = this.querySelector('.fee-detail');
+      const ico = this.querySelector('.chevron-icon');
+      if (det) { det.classList.toggle('open'); if (ico) ico.classList.toggle('open'); }
+    });
+    list.appendChild(myCard);
+    document.getElementById("myFeeSummaryValue").textContent = myFee.toLocaleString() + "원";
+  }
+
+  results.forEach((b, idx) => {
+    const c = colorMap[b.color];
+    const d = b.effectiveDetail;
+    const isOpen = openStates[b.name] || false;
+    const card = document.createElement("div");
+    card.className = "broker-card";
+    card.setAttribute("data-broker", b.name);
+
+    const eventBadge = b.useEvent && b.event ? `<span class="badge-event" style="background: ${c.bg}; color: ${c.text};">${b.event}</span>` : "";
+    const usedRate = b.useEvent ? b.eventRate : b.rate;
+
+    const feeDisplay = b.useEvent && b.eventFee !== b.baseFee
+      ? `<div class="fee-display">
+           <p class="fee-original">${b.baseFee.toLocaleString()}원</p>
+           <p class="fee-final discount">${b.eventFee.toLocaleString()}원</p>
+         </div>`
+      : `<div class="fee-display">
+           <p class="fee-final">${b.effectiveFee.toLocaleString()}원</p>
+           <p class="fee-rate">수수료율 ${usedRate}%</p>
+         </div>`;
+
+    const chevron = `<svg class="chevron-icon${isOpen ? ' open' : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>`;
+
+    const combinedTax = d.sellTax + d.sellRural;
+    const combinedTaxRate = currentMarket === 'kospi' ? '0.20%' : '0.20%';
+
+    const ctaBtn = b.useEvent && b.event
+      ? `<button class="cta-btn" style="background: ${c.bg}; color: ${c.text};" onclick="event.stopPropagation(); openLink('${b.url}')">${b.name} 계좌개설하고 수수료 아끼기 →</button>`
+      : "";
+
+    const detailHTML = `
+      <div class="fee-detail${isOpen ? ' open' : ''}">
+        <div class="fee-detail-inner">
+          <p class="fee-section-title">매수 비용</p>
+          <div class="fee-line"><span class="fee-line-label">증권사 수수료 (${usedRate}%)</span><span class="fee-line-value">${d.buyBroker.toLocaleString()}원</span></div>
+          <div class="fee-line"><span class="fee-line-label">유관기관제비용 (0.0036396%)</span><span class="fee-line-value">${d.buyMisc.toLocaleString()}원</span></div>
+          <div class="fee-line subtotal"><span class="fee-line-label">매수 소계</span><span class="fee-line-value">${d.buyTotal.toLocaleString()}원</span></div>
+
+          <p class="fee-section-title">매도 비용</p>
+          <div class="fee-line"><span class="fee-line-label">증권사 수수료 (${usedRate}%)</span><span class="fee-line-value">${d.sellBroker.toLocaleString()}원</span></div>
+          <div class="fee-line"><span class="fee-line-label">유관기관제비용 (0.0036396%)</span><span class="fee-line-value">${d.sellMisc.toLocaleString()}원</span></div>
+          <div class="fee-line"><span class="fee-line-label">증권거래세 (${combinedTaxRate})</span><span class="fee-line-value">${combinedTax.toLocaleString()}원</span></div>
+          <div class="fee-line subtotal"><span class="fee-line-label">매도 소계</span><span class="fee-line-value">${d.sellTotal.toLocaleString()}원</span></div>
+        </div>
+      </div>
+    `;
+
+    card.innerHTML = `
+      <div class="broker-row">
+        <div class="broker-info">
+          <div class="broker-name-row">
+            <span class="broker-name">${b.name}</span>${chevron}
+          </div>
+          <div>${eventBadge}</div>
+        </div>
+        ${feeDisplay}
+      </div>
+      ${detailHTML}
+      ${ctaBtn}
+    `;
+
+    if (!showAllBrokers && idx >= VISIBLE_COUNT) {
+      card.classList.add('broker-hidden');
+    }
+
+    card.addEventListener('click', function(e) {
+      if (e.target.closest('.cta-btn')) return;
+      const detail = this.querySelector('.fee-detail');
+      const icon = this.querySelector('.chevron-icon');
+      if (detail) {
+        detail.classList.toggle('open');
+        if (icon) icon.classList.toggle('open');
+      }
+    });
+
+    list.appendChild(card);
+  });
+
+  if (results.length > VISIBLE_COUNT) {
+    const moreBtn = document.createElement("button");
+    moreBtn.className = "broker-more-btn" + (showAllBrokers ? " open" : "");
+    const hiddenCount = results.length - VISIBLE_COUNT;
+    moreBtn.innerHTML = showAllBrokers
+      ? `접기 <svg class="chevron-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>`
+      : `나머지 ${hiddenCount}개 증권사 더보기 <svg class="chevron-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>`;
+    moreBtn.addEventListener('click', function() {
+      showAllBrokers = !showAllBrokers;
+      render();
+    });
+    list.appendChild(moreBtn);
+  }
+}
+
+function openLink(url) {
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+function getRawAmount() {
+  return parseFloat(document.getElementById("buyAmount").value.replace(/,/g, '')) || 0;
+}
+
+function formatAmount(num) {
+  return Math.floor(num).toLocaleString();
+}
+
+function setAmount(val) {
+  document.getElementById("buyAmount").value = formatAmount(val);
+  render();
+}
+
+function addAmount(val) {
+  const current = getRawAmount();
+  document.getElementById("buyAmount").value = formatAmount(current + val);
+  render();
+}
+
+const buyInput = document.getElementById("buyAmount");
+buyInput.addEventListener("input", function() {
+  const raw = this.value.replace(/,/g, '');
+  if (raw === '' || raw === '-') { render(); return; }
+  const num = parseFloat(raw);
+  if (isNaN(num)) return;
+  const pos = this.selectionStart;
+  const beforeLen = this.value.length;
+  this.value = formatAmount(num);
+  const afterLen = this.value.length;
+  this.setSelectionRange(pos + (afterLen - beforeLen), pos + (afterLen - beforeLen));
+  render();
+});
+buyInput.addEventListener("focus", function() {
+  if (getRawAmount() === 0) this.value = "";
+});
+buyInput.addEventListener("blur", function() {
+  if (this.value.replace(/,/g, '') === "") this.value = "0";
+  else this.value = formatAmount(getRawAmount());
+  render();
+});
+
+document.getElementById("returnRate").addEventListener("input", render);
+
+const sellInput = document.getElementById("sellAmountInput");
+sellInput.addEventListener("input", function() {
+  const raw = this.value.replace(/,/g, '');
+  if (raw === '' || raw === '-') { render(); return; }
+  const num = parseFloat(raw);
+  if (isNaN(num)) return;
+  const pos = this.selectionStart;
+  const beforeLen = this.value.length;
+  this.value = formatAmount(num);
+  const afterLen = this.value.length;
+  this.setSelectionRange(pos + (afterLen - beforeLen), pos + (afterLen - beforeLen));
+  render();
+});
+sellInput.addEventListener("blur", function() {
+  if (this.value.replace(/,/g, '') === "") this.value = "0";
+  else this.value = formatAmount(parseFloat(this.value.replace(/,/g, '')) || 0);
+  render();
+});
+
+document.getElementById("myFeeRate").addEventListener("input", render);
+
+// ========== 해외주식 (미국) ==========
+let osBrokers = [];
+let osShowAll = false;
+let osMode = 'all';
+let osMyFeeMode = false;
+let osCurrencyUSD = false;
+const OS_EXCHANGE_RATE = 1380;
+const OS_SEC_FEE_RATE = 0.0000206;
+const OS_CGT_RATE = 0.22;
+const OS_CGT_DEDUCTION = 2500000;
+
+fetch('overseas_brokers.json')
+  .then(r => r.json())
+  .then(data => { osBrokers = data; renderOs(); })
+  .catch(() => {
+    osBrokers = [
+      { name: "메리츠증권", rate: 0.07, event: "2026.12까지 무료", eventRate: 0.0, eventOn: false, color: "gray", url: "https://home.imeritz.com" },
+      { name: "카카오페이증권", rate: 0.1, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.kakaopaysec.com" },
+      { name: "토스증권", rate: 0.1, event: null, eventRate: null, eventOn: false, color: "blue", url: "https://tossinvest.com" },
+      { name: "키움증권", rate: 0.25, event: "신규 무료", eventRate: 0.0, eventOn: false, color: "amber", url: "https://www.kiwoom.com" },
+      { name: "미래에셋증권", rate: 0.25, event: "신규 90일 무료", eventRate: 0.0, eventOn: false, color: "gray", url: "https://securities.miraeasset.com" },
+      { name: "삼성증권", rate: 0.25, event: "신규 3개월 무료", eventRate: 0.0, eventOn: false, color: "gray", url: "https://www.samsungpop.com" },
+      { name: "한국투자증권", rate: 0.25, event: null, eventRate: null, eventOn: false, color: "teal", url: "https://securities.koreainvestment.com" },
+      { name: "NH투자증권", rate: 0.25, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.nhqv.com" },
+      { name: "KB증권", rate: 0.25, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.kbsec.com" },
+      { name: "신한투자증권", rate: 0.25, event: "신규 6개월 무료", eventRate: 0.0, eventOn: false, color: "gray", url: "https://www.shinhansec.com" },
+      { name: "하나증권", rate: 0.25, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.hanaw.com" },
+      { name: "대신증권", rate: 0.25, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.daishin.com" },
+      { name: "교보증권", rate: 0.25, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.iprovest.com" },
+      { name: "유안타증권", rate: 0.25, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.myasset.com" },
+      { name: "한화투자증권", rate: 0.25, event: null, eventRate: null, eventOn: false, color: "gray", url: "https://www.hanwhawm.com" }
+    ];
+    renderOs();
+  });
+
+function getOsRaw(id) {
+  return parseFloat(document.getElementById(id).value.replace(/,/g, '')) || 0;
+}
+
+function toggleOsCurrency() {
+  osCurrencyUSD = !osCurrencyUSD;
+  const input = document.getElementById("osBuyAmount");
+  const unit = document.getElementById("osCurrUnit");
+  const rawKRW = getOsRaw("osBuyAmount");
+  if (osCurrencyUSD) {
+    unit.textContent = "USD";
+    input.value = Math.round(rawKRW / OS_EXCHANGE_RATE).toLocaleString();
+  } else {
+    unit.textContent = "원";
+    input.value = Math.round(rawKRW * OS_EXCHANGE_RATE).toLocaleString();
+  }
+  renderOs();
+}
+
+function addOsAmount(val) {
+  const current = getOsRaw("osBuyAmount");
+  document.getElementById("osBuyAmount").value = formatAmount(current + val);
+  renderOs();
+}
+
+function setOsMode(mode) {
+  osMode = mode;
+  document.getElementById("osModeAll").classList.toggle("active", mode === "all");
+  document.getElementById("osModeBroker").classList.toggle("active", mode === "broker");
+  renderOs();
+}
+
+function toggleOsMyFee() {
+  osMyFeeMode = !osMyFeeMode;
+  const toggle = document.getElementById("osMyFeeToggle");
+  const slider = document.getElementById("osSliderSection");
+  const myFee = document.getElementById("osMyFeeSection");
+  const text = document.getElementById("osMyFeeToggleText");
+  toggle.classList.toggle("open", osMyFeeMode);
+  slider.style.display = osMyFeeMode ? "none" : "block";
+  myFee.style.display = osMyFeeMode ? "block" : "none";
+  text.textContent = osMyFeeMode ? "증권사 비교 모드로 돌아가기" : "내 수수료율로 직접 계산해보기";
+  renderOs();
+}
+
+function calcOsFeeDetail(buyAmountKRW, sellAmountKRW, brokerRate) {
+  const buyBroker = Math.round(buyAmountKRW * (brokerRate / 100));
+  const sellBroker = Math.round(sellAmountKRW * (brokerRate / 100));
+  const sellSEC = Math.round(sellAmountKRW * OS_SEC_FEE_RATE);
+  const profit = sellAmountKRW - buyAmountKRW;
+  const taxableProfit = Math.max(0, profit - OS_CGT_DEDUCTION);
+  const cgt = Math.round(taxableProfit * OS_CGT_RATE);
+  const buyTotal = buyBroker;
+  const sellTotal = sellBroker + sellSEC;
+  const brokerOnly = buyBroker + sellBroker;
+  const allTotal = buyTotal + sellTotal + cgt;
+  return { buyBroker, sellBroker, sellSEC, cgt, profit, taxableProfit, buyTotal, sellTotal, brokerOnly, allTotal };
+}
+
+function getOsEffective(d, mode) {
+  return mode === 'broker' ? d.brokerOnly : d.allTotal;
+}
+
+function renderOs() {
+  const rawBuy = getOsRaw("osBuyAmount");
+  const buyAmountKRW = osCurrencyUSD ? Math.round(rawBuy * OS_EXCHANGE_RATE) : rawBuy;
+  const returnRate = parseFloat(document.getElementById("osReturnRate").value) || 0;
+
+  let sellAmountKRW;
+  if (osMyFeeMode) {
+    sellAmountKRW = getOsRaw("osSellAmountInput");
+  } else {
+    sellAmountKRW = Math.round(buyAmountKRW * (1 + returnRate / 100));
+  }
+
+  document.getElementById("osBuyAmountKr").textContent = osCurrencyUSD
+    ? '$' + rawBuy.toLocaleString()
+    : numToKorean(buyAmountKRW);
+  const retOut = document.getElementById("osReturnOut");
+  retOut.textContent = (returnRate >= 0 ? "+" : "") + returnRate + "%";
+  retOut.className = "value " + (returnRate > 0 ? "positive" : returnRate < 0 ? "negative" : "");
+
+  const results = osBrokers.map(b => {
+    const baseDetail = calcOsFeeDetail(buyAmountKRW, sellAmountKRW, b.rate);
+    const useEvent = b.eventOn && b.eventRate !== null;
+    const eventDetail = useEvent ? calcOsFeeDetail(buyAmountKRW, sellAmountKRW, b.eventRate) : null;
+    const effectiveDetail = eventDetail || baseDetail;
+    const baseFee = getOsEffective(baseDetail, osMode);
+    const eventFee = eventDetail ? getOsEffective(eventDetail, osMode) : null;
+    const effectiveFee = eventFee !== null ? eventFee : baseFee;
+    return { ...b, baseDetail, eventDetail, effectiveDetail, baseFee, eventFee, effectiveFee, useEvent };
+  }).sort((a, b) => a.effectiveFee - b.effectiveFee);
+
+  const minFee = results[0].effectiveFee;
+  const maxFee = results[results.length - 1].effectiveFee;
+  document.getElementById("osSavingsAmount").textContent = ((maxFee - minFee) * 12).toLocaleString() + "원";
+  document.getElementById("osSavingsDetail").textContent = "회당 " + (maxFee - minFee).toLocaleString() + "원";
+
+  const list = document.getElementById("osBrokerList");
+  const openStates = {};
+  list.querySelectorAll('.broker-card').forEach(el => {
+    const nm = el.getAttribute('data-broker');
+    const dt = el.querySelector('.fee-detail');
+    if (nm && dt && dt.classList.contains('open')) openStates[nm] = true;
+  });
+  list.innerHTML = "";
+
+  if (osMyFeeMode) {
+    const myRate = parseFloat(document.getElementById("osMyFeeRate").value) || 0;
+    const md = calcOsFeeDetail(buyAmountKRW, sellAmountKRW, myRate);
+    const myFee = getOsEffective(md, osMode);
+    const isMyOpen = openStates['__osmy__'] || false;
+    const chM = `<svg class="chevron-icon${isMyOpen ? ' open' : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>`;
+    const myDHTML = `<div class="fee-detail${isMyOpen ? ' open' : ''}"><div class="fee-detail-inner">
+      <p class="fee-section-title">매수 비용</p>
+      <div class="fee-line"><span class="fee-line-label">증권사 수수료 (${myRate}%)</span><span class="fee-line-value">${md.buyBroker.toLocaleString()}원</span></div>
+      <div class="fee-line subtotal"><span class="fee-line-label">매수 소계</span><span class="fee-line-value">${md.buyTotal.toLocaleString()}원</span></div>
+      <p class="fee-section-title">매도 비용</p>
+      <div class="fee-line"><span class="fee-line-label">증권사 수수료 (${myRate}%)</span><span class="fee-line-value">${md.sellBroker.toLocaleString()}원</span></div>
+      <div class="fee-line"><span class="fee-line-label">SEC Fee (0.00206%)</span><span class="fee-line-value">${md.sellSEC.toLocaleString()}원</span></div>
+      <div class="fee-line subtotal"><span class="fee-line-label">매도 소계</span><span class="fee-line-value">${md.sellTotal.toLocaleString()}원</span></div>
+      <p class="fee-section-title">양도소득세</p>
+      <div class="fee-line"><span class="fee-line-label">매매차익</span><span class="fee-line-value">${md.profit.toLocaleString()}원</span></div>
+      <div class="fee-line"><span class="fee-line-label">기본공제 (250만원)</span><span class="fee-line-value">-${Math.min(Math.max(md.profit, 0), OS_CGT_DEDUCTION).toLocaleString()}원</span></div>
+      <div class="fee-line subtotal"><span class="fee-line-label">양도소득세 (22%)</span><span class="fee-line-value">${md.cgt.toLocaleString()}원</span></div>
+    </div></div>`;
+    const myC = document.createElement("div");
+    myC.className = "broker-card my-card";
+    myC.setAttribute("data-broker", "__osmy__");
+    myC.innerHTML = `<div class="broker-row"><div class="broker-info"><div class="broker-name-row"><span class="badge badge-my">내 수수료</span><span class="broker-name">직접 계산</span>${chM}</div></div><div class="fee-display"><p class="fee-final">${myFee.toLocaleString()}원</p><p class="fee-rate">수수료율 ${myRate}%</p></div></div>${myDHTML}`;
+    myC.addEventListener('click', function() { const dt = this.querySelector('.fee-detail'); const ic = this.querySelector('.chevron-icon'); if (dt) { dt.classList.toggle('open'); if (ic) ic.classList.toggle('open'); } });
+    list.appendChild(myC);
+    document.getElementById("osMyFeeSummaryValue").textContent = myFee.toLocaleString() + "원";
+  }
+
+  results.forEach((b, idx) => {
+    const c = colorMap[b.color];
+    const d = b.effectiveDetail;
+    const isOpen = openStates[b.name] || false;
+    const card = document.createElement("div");
+    card.className = "broker-card";
+    card.setAttribute("data-broker", b.name);
+    const eventBadge = b.useEvent && b.event ? `<span class="badge-event" style="background: ${c.bg}; color: ${c.text};">${b.event}</span>` : "";
+    const usedRate = b.useEvent ? b.eventRate : b.rate;
+    const feeDisplay = b.useEvent && b.eventFee !== b.baseFee
+      ? `<div class="fee-display"><p class="fee-original">${b.baseFee.toLocaleString()}원</p><p class="fee-final discount">${b.eventFee.toLocaleString()}원</p></div>`
+      : `<div class="fee-display"><p class="fee-final">${b.effectiveFee.toLocaleString()}원</p><p class="fee-rate">수수료율 ${usedRate}%</p></div>`;
+    const chevron = `<svg class="chevron-icon${isOpen ? ' open' : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>`;
+    const ctaBtn = b.useEvent && b.event
+      ? `<button class="cta-btn" style="background: ${c.bg}; color: ${c.text};" onclick="event.stopPropagation(); openLink('${b.url}')">${b.name} 계좌개설하고 수수료 아끼기 →</button>`
+      : "";
+    const detailHTML = `<div class="fee-detail${isOpen ? ' open' : ''}"><div class="fee-detail-inner">
+      <p class="fee-section-title">매수 비용</p>
+      <div class="fee-line"><span class="fee-line-label">증권사 수수료 (${usedRate}%)</span><span class="fee-line-value">${d.buyBroker.toLocaleString()}원</span></div>
+      <div class="fee-line subtotal"><span class="fee-line-label">매수 소계</span><span class="fee-line-value">${d.buyTotal.toLocaleString()}원</span></div>
+      <p class="fee-section-title">매도 비용</p>
+      <div class="fee-line"><span class="fee-line-label">증권사 수수료 (${usedRate}%)</span><span class="fee-line-value">${d.sellBroker.toLocaleString()}원</span></div>
+      <div class="fee-line"><span class="fee-line-label">SEC Fee (0.00206%)</span><span class="fee-line-value">${d.sellSEC.toLocaleString()}원</span></div>
+      <div class="fee-line subtotal"><span class="fee-line-label">매도 소계</span><span class="fee-line-value">${d.sellTotal.toLocaleString()}원</span></div>
+      <p class="fee-section-title">양도소득세</p>
+      <div class="fee-line"><span class="fee-line-label">매매차익</span><span class="fee-line-value">${d.profit.toLocaleString()}원</span></div>
+      <div class="fee-line"><span class="fee-line-label">기본공제 (250만원)</span><span class="fee-line-value">-${Math.min(Math.max(d.profit, 0), OS_CGT_DEDUCTION).toLocaleString()}원</span></div>
+      <div class="fee-line subtotal"><span class="fee-line-label">양도소득세 (22%)</span><span class="fee-line-value">${d.cgt.toLocaleString()}원</span></div>
+    </div></div>`;
+    card.innerHTML = `<div class="broker-row"><div class="broker-info"><div class="broker-name-row"><span class="broker-name">${b.name}</span>${chevron}</div><div>${eventBadge}</div></div>${feeDisplay}</div>${detailHTML}${ctaBtn}`;
+    if (!osShowAll && idx >= VISIBLE_COUNT) card.classList.add('broker-hidden');
+    card.addEventListener('click', function(e) { if (e.target.closest('.cta-btn')) return; const dt = this.querySelector('.fee-detail'); const ic = this.querySelector('.chevron-icon'); if (dt) { dt.classList.toggle('open'); if (ic) ic.classList.toggle('open'); } });
+    list.appendChild(card);
+  });
+
+  if (results.length > VISIBLE_COUNT) {
+    const moreBtn = document.createElement("button");
+    moreBtn.className = "broker-more-btn" + (osShowAll ? " open" : "");
+    const hc = results.length - VISIBLE_COUNT;
+    moreBtn.innerHTML = osShowAll
+      ? `접기 <svg class="chevron-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>`
+      : `나머지 ${hc}개 증권사 더보기 <svg class="chevron-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>`;
+    moreBtn.addEventListener('click', function() { osShowAll = !osShowAll; renderOs(); });
+    list.appendChild(moreBtn);
+  }
+}
+
+// 해외주식 이벤트 리스너
+const osBuyInput = document.getElementById("osBuyAmount");
+osBuyInput.addEventListener("input", function() {
+  const raw = this.value.replace(/,/g, '');
+  if (raw === '' || raw === '-') { renderOs(); return; }
+  const num = parseFloat(raw);
+  if (isNaN(num)) return;
+  const pos = this.selectionStart;
+  const bLen = this.value.length;
+  this.value = formatAmount(num);
+  const aLen = this.value.length;
+  this.setSelectionRange(pos + (aLen - bLen), pos + (aLen - bLen));
+  renderOs();
+});
+osBuyInput.addEventListener("blur", function() {
+  if (this.value.replace(/,/g, '') === "") this.value = "0";
+  else this.value = formatAmount(parseFloat(this.value.replace(/,/g, '')) || 0);
+  renderOs();
+});
+document.getElementById("osReturnRate").addEventListener("input", renderOs);
+
+const osSellInput = document.getElementById("osSellAmountInput");
+osSellInput.addEventListener("input", function() {
+  const raw = this.value.replace(/,/g, '');
+  if (raw === '' || raw === '-') { renderOs(); return; }
+  const num = parseFloat(raw);
+  if (isNaN(num)) return;
+  const pos = this.selectionStart;
+  const bLen = this.value.length;
+  this.value = formatAmount(num);
+  const aLen = this.value.length;
+  this.setSelectionRange(pos + (aLen - bLen), pos + (aLen - bLen));
+  renderOs();
+});
+osSellInput.addEventListener("blur", function() {
+  if (this.value.replace(/,/g, '') === "") this.value = "0";
+  else this.value = formatAmount(parseFloat(this.value.replace(/,/g, '')) || 0);
+  renderOs();
+});
+document.getElementById("osMyFeeRate").addEventListener("input", renderOs);
+
+</script>
+
+</body>
+</html>
