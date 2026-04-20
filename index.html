@@ -656,11 +656,13 @@
     <div id="sliderSection">
       <div class="return-row">
         <span class="label-text">예상 수익률</span>
-        <span class="value positive" id="returnOut">+10%</span>
       </div>
-      <input type="range" id="returnRate" min="-50" max="100" value="10" step="1" />
+      <div style="position: relative; padding-top: 28px;">
+        <span class="value positive" id="returnOut" style="position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap;">+10%</span>
+        <input type="range" id="returnRate" min="-100" max="100" value="10" step="1" />
+      </div>
       <div class="range-labels" style="justify-content: flex-start; position: relative;">
-        <span style="position: absolute; left: 0;">-50%</span><span style="position: absolute; left: 33.3%; transform: translateX(-50%);">0%</span><span style="position: absolute; right: 0;">+100%</span>
+        <span style="position: absolute; left: 0;">-100%</span><span style="position: absolute; left: 50%; transform: translateX(-50%);">0%</span><span style="position: absolute; right: 0;">+100%</span>
       </div>
     </div>
 
@@ -750,11 +752,13 @@
       <div id="osSliderSection">
         <div class="return-row">
           <span class="label-text">예상 수익률</span>
-          <span class="value positive" id="osReturnOut">+10%</span>
         </div>
-        <input type="range" id="osReturnRate" min="-50" max="100" value="10" step="1" />
+        <div style="position: relative; padding-top: 28px;">
+          <span class="value positive" id="osReturnOut" style="position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap;">+10%</span>
+          <input type="range" id="osReturnRate" min="-100" max="100" value="10" step="1" />
+        </div>
         <div class="range-labels" style="justify-content: flex-start; position: relative;">
-          <span style="position: absolute; left: 0;">-50%</span><span style="position: absolute; left: 33.3%; transform: translateX(-50%);">0%</span><span style="position: absolute; right: 0;">+100%</span>
+          <span style="position: absolute; left: 0;">-100%</span><span style="position: absolute; left: 50%; transform: translateX(-50%);">0%</span><span style="position: absolute; right: 0;">+100%</span>
         </div>
       </div>
 
@@ -963,6 +967,19 @@ function setMode(mode) {
   render();
 }
 
+function updateSliderOutPos(sliderId, outId) {
+  const slider = document.getElementById(sliderId);
+  const out = document.getElementById(outId);
+  if (!slider || !out) return;
+  const min = parseFloat(slider.min);
+  const max = parseFloat(slider.max);
+  const val = parseFloat(slider.value);
+  const pct = (val - min) / (max - min);
+  const thumbW = 22;
+  const offset = thumbW / 2 - pct * thumbW;
+  out.style.left = `calc(${pct * 100}% + ${offset}px)`;
+}
+
 function render() {
   const buyAmount = parseFloat(document.getElementById("buyAmount").value.replace(/,/g, '')) || 0;
   const returnRate = parseFloat(document.getElementById("returnRate").value) || 0;
@@ -978,6 +995,7 @@ function render() {
   const returnOut = document.getElementById("returnOut");
   returnOut.textContent = (returnRate >= 0 ? "+" : "") + returnRate + "%";
   returnOut.className = "value " + (returnRate > 0 ? "positive" : returnRate < 0 ? "negative" : "");
+  updateSliderOutPos("returnRate", "returnOut");
 
   const results = brokers.map(b => {
     const baseDetail = calcFeeDetail(buyAmount, sellAmount, b.rate);
@@ -1334,6 +1352,7 @@ function renderOs() {
   const retOut = document.getElementById("osReturnOut");
   retOut.textContent = (returnRate >= 0 ? "+" : "") + returnRate + "%";
   retOut.className = "value " + (returnRate > 0 ? "positive" : returnRate < 0 ? "negative" : "");
+  updateSliderOutPos("osReturnRate", "osReturnOut");
 
   const results = osBrokers.map(b => {
     const baseDetail = calcOsFeeDetail(buyAmountKRW, sellAmountKRW, b.rate);
